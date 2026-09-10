@@ -25,6 +25,7 @@ mermaid.initialize({
 // ============================================================
 function MermaidDiagram({ chart, id }: { chart: string; id: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -45,11 +46,21 @@ function MermaidDiagram({ chart, id }: { chart: string; id: string }) {
     renderDiagram();
   }, [chart, id]);
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    setScale(Math.max(0.5, Math.min(3, scale * delta)));
-  };
+  // Use native event listener to properly prevent default scroll behavior
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      setScale((prevScale) => Math.max(0.5, Math.min(3, prevScale * delta)));
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 0) {
@@ -67,8 +78,8 @@ function MermaidDiagram({ chart, id }: { chart: string; id: string }) {
   return (
     <div className="my-6">
       <div
+        ref={containerRef}
         className="mermaid-container relative overflow-hidden"
-        onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={() => setIsDragging(false)}
