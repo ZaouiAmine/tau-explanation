@@ -1,17 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --color-primary: #f97316;
+  --color-primary-dark: #ea580c;
+}
 
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+  color: #1e293b;
 }
 
 /* Mermaid diagram styling */
@@ -23,6 +28,7 @@ body {
   border-radius: 1rem;
   border: 1px solid #e2e8f0;
   overflow-x: auto;
+  margin: 1.5rem 0;
 }
 
 .mermaid-container svg {
@@ -32,11 +38,13 @@ body {
 
 /* Code blocks */
 pre {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.7;
 }
 
 code {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
 }
 
 /* Scrollbar styling */
@@ -58,6 +66,18 @@ code {
   background: #94a3b8;
 }
 
+/* Selection color */
+::selection {
+  background: #bfdbfe;
+  color: #1e293b;
+}
+
+/* Table styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
 /* Smooth section transitions */
 section {
   animation: fadeIn 0.3s ease-in-out;
@@ -72,15 +92,4 @@ section {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Table styling */
-table {
-  border-collapse: collapse;
-}
-
-/* Selection color */
-::selection {
-  background: #bfdbfe;
-  color: #1e293b;
 }
