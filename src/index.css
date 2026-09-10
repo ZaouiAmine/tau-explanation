@@ -23,17 +23,22 @@ body {
 .mermaid-container {
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 1.5rem;
   background: #f8fafc;
   border-radius: 1rem;
   border: 1px solid #e2e8f0;
-  overflow-x: auto;
+  overflow: hidden;
   margin: 1.5rem 0;
+  min-height: 300px;
+  position: relative;
+  user-select: none;
 }
 
 .mermaid-container svg {
   max-width: 100%;
   height: auto;
+  pointer-events: none;
 }
 
 /* Code blocks */

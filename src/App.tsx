@@ -35,6 +35,11 @@ mermaid.initialize({
 
 function MermaidDiagram({ chart, id }: { chart: string; id: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const renderDiagram = async () => {
@@ -51,7 +56,114 @@ function MermaidDiagram({ chart, id }: { chart: string; id: string }) {
     renderDiagram();
   }, [chart, id]);
 
-  return <div ref={ref} className="mermaid-container my-6" />;
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const newScale = Math.max(0.5, Math.min(3, scale * delta));
+    setScale(newScale);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button === 0) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const zoomIn = () => {
+    setScale(Math.min(3, scale * 1.2));
+  };
+
+  const zoomOut = () => {
+    setScale(Math.max(0.5, scale * 0.8));
+  };
+
+  const resetZoom = () => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  return (
+    <div className="my-6">
+      <div
+        ref={containerRef}
+        className="mermaid-container relative overflow-hidden"
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+      >
+        <div
+          ref={ref}
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transformOrigin: 'center center',
+            transition: isDragging ? 'none' : 'transform 0.2s ease',
+          }}
+        />
+        
+        {/* Zoom Controls */}
+        <div className="absolute top-3 right-3 flex gap-1 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-slate-200 p-1">
+          <button
+            onClick={zoomIn}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 transition-colors text-slate-700"
+            title="Zoom In"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </button>
+          <button
+            onClick={zoomOut}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 transition-colors text-slate-700"
+            title="Zoom Out"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
+            </svg>
+          </button>
+          <button
+            onClick={resetZoom}
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100 transition-colors text-slate-700"
+            title="Reset Zoom"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Zoom Level Indicator */}
+        <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-slate-200 px-3 py-1 text-xs text-slate-600 font-medium">
+          {Math.round(scale * 100)}%
+        </div>
+      </div>
+      
+      {/* Help Text */}
+      <p className="text-xs text-slate-500 text-center mt-2">
+        Scroll to zoom • Drag to pan • Use controls to adjust
+      </p>
+    </div>
+  );
 }
 
 function Section({ id, children }: { id: string; children: React.ReactNode }) {
